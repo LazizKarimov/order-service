@@ -28,7 +28,7 @@ public class OrderEventProducer {
         CompletableFuture<SendResult<String, OrderCreatedEvent>> future =
                 kafkaTemplate.send(
                         TOPIC_NAME,
-                        orderCreatedEvent.getOrderId().toString(),
+                        orderCreatedEvent.getId().toString(),
                         orderCreatedEvent
                 );
 

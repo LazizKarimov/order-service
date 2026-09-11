@@ -27,7 +27,7 @@ public class OrderService {
         log.info("Создан ордер {}", savedOrder.getId());
 
         OrderCreatedEvent event = OrderCreatedEvent.builder()
-                .orderId(savedOrder.getId())
+                .id(savedOrder.getId())
                 .customerId(savedOrder.getCustomerId())
                 .amount(savedOrder.getAmount())
                 .status(savedOrder.getStatus())
