@@ -1,5 +1,6 @@
 package com.example.orderservice.kafka.producer;
 
+import com.example.orderservice.event.OrderCancelledEvent;
 import com.example.orderservice.event.OrderCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +15,10 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class OrderEventProducer {
 
-    private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     private static final String TOPIC_NAME = "order-events";
+    private static final String CANCELLED_TOPIC_NAME = "order-cancelled-events";
 
     public void sendOrderEvent(OrderCreatedEvent orderCreatedEvent){
 
@@ -25,7 +27,7 @@ public class OrderEventProducer {
             return;
         }
 
-        CompletableFuture<SendResult<String, OrderCreatedEvent>> future =
+        CompletableFuture<SendResult<String, Object>> future =
                 kafkaTemplate.send(
                         TOPIC_NAME,
                         orderCreatedEvent.getId().toString(),
@@ -40,6 +42,33 @@ public class OrderEventProducer {
                         result.getRecordMetadata().offset());
             } else {
                 log.error("Ошибка отправки OrderEvent: {}", orderCreatedEvent, ex);
+            }
+        });
+    }
+
+    public void sendOrderCancelledEvent(OrderCancelledEvent event) {
+        if (event == null) {
+            log.warn("Попытка отправить null OrderCancelledEvent");
+            return;
+        }
+
+        CompletableFuture<SendResult<String, Object>> future =
+                kafkaTemplate.send(
+                        CANCELLED_TOPIC_NAME,
+                        event.sagaId().toString(),
+                        event
+                );
+
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                log.info("OrderCancelledEvent отправлен: sagaId={}, orderId={}",
+                        event.sagaId(), event.orderId());
+                log.info("   Partition: {}, Offset: {}",
+                        result.getRecordMetadata().partition(),
+                        result.getRecordMetadata().offset());
+            } else {
+                log.error("Ошибка отправки OrderCancelledEvent: sagaId={}",
+                        event.sagaId(), ex);
             }
         });
     }
