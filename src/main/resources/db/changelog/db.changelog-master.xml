@@ -7,5 +7,6 @@
 
     <!-- Здесь будут ссылки на файлы с конкретными изменениями -->
     <include file="migration/001-create-initial-tables.xml" relativeToChangelogFile="true"/>
+    <include file="migration/002-outbox-events.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
