@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -53,6 +54,7 @@ public class OrderService {
         log.info("Создан ордер {}", savedOrder.getId());
 
         OrderCreatedEvent event = OrderCreatedEvent.builder()
+                .eventId(UUID.randomUUID())
                 .id(savedOrder.getId())
                 .customerId(savedOrder.getCustomerId())
                 .amount(savedOrder.getAmount())
@@ -91,6 +93,7 @@ public class OrderService {
         log.info("[Order] Заказ отменён: id={}, status=CANCELLED", order.getId());
 
         OrderCancelledEvent event = new OrderCancelledEvent(
+                UUID.randomUUID(),
                 command.sagaId(),
                 order.getId(),
                 Instant.now()
